@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "569274065787",
+    "project_id": "app1-835b2",
+    "storage_bucket": "app1-835b2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569274065787:android:10d30b41bc2baabb7493de",
+        "android_client_info": {
+          "package_name": "com.fbsdksample"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxx1dD0z_3FhkZ19gkiP2Canzgos9Lwvw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
