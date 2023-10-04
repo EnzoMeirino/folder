@@ -1,11 +1,84 @@
 import React, { useState, useCallback, memo } from "react";
-import { Text, StyleSheet, Pressable, View, Modal } from "react-native";
-import { Image } from "expo-image";
-import DatePicker from "./DatePicker";
-import { FontSize, Color, FontFamily } from "../GlobalStyles";
+import { Text, StyleSheet, Pressable, View, Modal, TouchableOpacity } from "react-native";
+import { Color } from "../GlobalStyles";
 import { Calendar, LocaleConfig } from "react-native-calendars";
+import database from '@react-native-firebase/database';
+import { useEffect, useState } from 'react';
+import { connectToMqtt } from './MqttService';
+
+const sendMqttDataToFirebase = (mqttData) => {
+  const firebaseRef = database().ref('dadosTemperatura'); // Substitua 'dadosTemperatura' pelo caminho desejado no seu banco de dados.
+  
+  // Insira os dados do MQTT no Firebase Realtime Database.
+  firebaseRef.push(mqttData); // Isso criará uma nova entrada com dados do MQTT.
+  // Ou você pode especificar uma chave personalizada.
+  // firebaseRef.child('chavePersonalizada').set(mqttData);
+};
 
 const Calendario = memo(() => {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [temperatureData, setTemperatureData] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    connectToMqtt();
+
+    const getTemperatureDataForDate = async (date) => {
+      try {
+        const snapshot = await database().ref('dadosTemperatura').orderByChild('data').equalTo(date).once('value');
+        const data = snapshot.val();
+        return data;
+      } catch (error) {
+        console.error('Erro ao recuperar dados de temperatura:', error);
+        return null;
+      }};
+    
+    const handleDateSelection = async (date) => {
+        setSelectedDate(date);
+  
+        const data = await getTemperatureDataForDate(date);
+        setTemperatureData(data);
+  
+        setModalVisible(true);
+      };
+      setModalVisible(false);
+    },[]);
+  
+
+    client.onMessageArrived = (message) => {
+      const payload = message.payloadString;
+      const topic = message.destinationName;
+
+      if (topic === 'temperatura') {
+        const mqttData = {
+          data: new Date().toISOString(), // Adicione a data ou timestamp correspondente aos dados.
+          temperatura: parseFloat(payload),
+          // Outros campos, como pH, TDS e gasto de energia.
+        };
+        sendMqttDataToFirebase('dadosTemperatura', mqttData);
+
+      } else if (topic === 'ph') {
+        const mqttData = {
+          data: new Date().toISOString(),
+          ph: parseFloat(payload),
+        };
+        sendMqttDataToFirebase('dadosPh', mqttData);
+      } else if (topic === 'tds') {
+        const mqttData = {
+          data: new Date().toISOString(),
+          tds: parseFloat(payload),
+        };
+        sendMqttDataToFirebase('dadosTds', mqttData);
+      } else if (topic === 'energia') {
+        const mqttData = {
+          data: new Date().toISOString(),
+          energia: parseFloat(payload),
+        };
+        sendMqttDataToFirebase('dadosEnergia', mqttData);
+      }
+    };
+  }, []);
+
   const [textVisible, setTextVisible] = useState(false);
 
   const openText = useCallback(() => {
@@ -59,22 +132,10 @@ const Calendario = memo(() => {
       <View style={[styles.calendar202220239012022Parent, styles.iconPosition]}>
         
         <Calendar style={styles.calendar202220239012022}>
+                             
+           onDayPress={(day) => handleDateSelection(day.dateString)}
 
-           current={'2023-03-01'}                    
-           onDayPress={day => {
-           console.log('selected day', day);
-           
-           }}
-
-  // Mark specific dates as marked
-
-        markedDates={{
-            '2023-09-26': {selected: true, marked: true, selectedColor: 'purple'},
-            '2023-09-02': {marked: true},
-            '2023-09-03': {selected: true, marked: true, selectedColor: 'purple'}
-        }}
-
-        theme={{
+           theme={{
             backgroundColor: '#ffffff',
             calendarBackground: '#ffffff',
             textSectionTitleColor: '#b6c1cd',
@@ -86,10 +147,33 @@ const Calendario = memo(() => {
         }}
 
         </Calendar>
-          
+
+        <Modal
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+      transparent={true}
+        >
+          <View>
+            {temperatureData ? (
+              <View>
+                <Text>Data: {selectedDate}</Text>
+                <Text>Temperatura: {temperatureData.temperatura}</Text>
+                <Text>pH: {temperatureData.ph}</Text>
+                <Text>TDS: {temperatureData.tds}</Text>
+                <Text>Energia: {temperatureData.energia}</Text>
+              </View>
+            ) : (
+              <Text>Dados não disponíveis para esta data.</Text>
+            )}
+
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       </View>
   );
-});
+
 
 const styles = StyleSheet.create({
   calendar20222023901Atom: {
