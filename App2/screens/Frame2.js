@@ -5,30 +5,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import Property1home1 from "../components/Property1home1";
 import { useNavigation } from "@react-navigation/native";
 import { Border, Color, FontFamily, FontSize } from "../GlobalStyles";
-import { connectToMqtt } from './MqttService';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { connectToMqtt } from './MqttService';
-
-const App = () => {
-  
-  return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Temperatura:</Text>
-      <Text style={styles.value}>{temperature} °C</Text>
-
-      <Text style={styles.label}>Nível de pH:</Text>
-      <Text style={styles.value}>{phLevel}</Text>
-
-      <Text style={styles.label}>TDS (Sólidos Dissolvidos Totais):</Text>
-      <Text style={styles.value}>{tdsValue} ppm</Text>
-
-      <Text style={styles.label}>Gasto de Energia:</Text>
-      <Text style={styles.value}>{energyUsage} kWh</Text>
-    </View>
-  );
-};
-
+import { connectToMqtt } from '../MqttService';
 
 const Frame2 = () => {
   const navigation = useNavigation();
@@ -69,6 +47,7 @@ const Frame2 = () => {
         }
       } else if (topic === 'tds') {
         setTdsValue(payload);
+
       } else if (topic === 'energia') {
         setEnergyUsage(payload);
       }
