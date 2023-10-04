@@ -1,7 +1,7 @@
 import { AsyncStorage } from 'react-native';
 import { Client, Message } from 'react-native-paho-mqtt';
 
-const client = new Client({ uri: 'mqtt://seu-broker-mqtt.com', clientId: 'react-native-client' });
+const client = new Client({ uri: 'mqtt://mqtt.eclipseprojects.io', clientId: 'react-native-client' });
 
 const onMessageArrived = (message) => {
   // Trate os dados MQTT recebidos aqui
