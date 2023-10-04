@@ -18,7 +18,10 @@ const connectToMqtt = async () => {
 
 const onConnect = () => {
   console.log('Conectado ao servidor MQTT');
-  client.subscribe('temperatura', 0); // Substitua 'temperatura' pelo tópico MQTT desejado
+  client.subscribe('temp', 2); // Substitua 'temperatura' pelo tópico MQTT desejado
+  client.subscribe('ph', 1); 
+  client.subscribe('tds', 1); 
+  client.subscribe('energia', 1); 
 };
 
 client.onMessageArrived = onMessageArrived;
